@@ -20,7 +20,7 @@
 #define GEOS_370 1
 
 /* Should be defined in order to enable GEOS_3100 support. */
-#define GEOS_3100 1
+/* #undef GEOS_3100 */
 
 /* Should be defined in order to enable GEOS_3110 support. */
 /* #undef GEOS_3110 */
@@ -65,4 +65,4 @@
 #define SPATIALITE_TARGET_CPU "x86_64-redhat-linux"
 
 /* the Version of this package */
-#define SPATIALITE_VERSION "5.1.0-devel"
+#define SPATIALITE_VERSION "5.1.1-rc0"

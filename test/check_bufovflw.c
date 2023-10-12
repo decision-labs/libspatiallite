@@ -125,6 +125,23 @@ main (int argc, char *argv[])
 	  return -1;
       }
 
+    ret = sqlite3_exec (handle, "PRAGMA trusted_schema=0", NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "PRAGMA trusted_schema=0 error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -1;
+      }
+    ret = sqlite3_exec (handle, "PRAGMA foreign_keys=1", NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "PRAGMA foreign_keys=1 error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -1;
+      }
+
     spatialite_init_ex (handle, cache, 0);
 
     ret =
@@ -1011,7 +1028,7 @@ main (int argc, char *argv[])
 
 /* checking AsGML (1) */
     strcpy (frmt,
-	    "<gml:MultiGeometry srsName=\"EPSG:4326\"><gml:geometryMember>"
+	    "<gml:MultiGeometry srsName=\"urn:ogc:def:crs:EPSG:4326\"><gml:geometryMember>"
 	    "<gml:Point><gml:coordinates>%1.0f,%1.0f</gml:coordinates>"
 	    "</gml:Point></gml:geometryMember><gml:geometryMember><gml:LineString>"
 	    "<gml:coordinates>0,0 %1.0f,%1.0f</gml:coordinates></gml:LineString>"
@@ -1060,7 +1077,7 @@ main (int argc, char *argv[])
 
 /* checking AsGML (2) */
     strcpy (frmt,
-	    "<gml:MultiGeometry srsName=\"EPSG:4326\"><gml:geometryMember>"
+	    "<gml:MultiGeometry srsName=\"urn:ogc:def:crs:EPSG:4326\"><gml:geometryMember>"
 	    "<gml:Point><gml:pos srsDimension=\"3\">%1.0f %1.0f %1.0f</gml:pos>"
 	    "</gml:Point></gml:geometryMember><gml:geometryMember><gml:Curve><gml:segments>"
 	    "<gml:LineStringSegment><gml:posList srsDimension=\"3\">0 0 0 "
@@ -1068,10 +1085,10 @@ main (int argc, char *argv[])
 	    "</gml:Curve></gml:geometryMember><gml:geometryMember>");
     strcat (frmt,
 	    "<gml:Polygon><gml:exterior><gml:LinearRing><gml:posList srsDimension=\"3\">"
-	    "0 0 0 0 %1.0f 0 %1.0f %1.0f %1.0f %1.0f 0 0 0 0 0</gml:posList>"
+	    "0 0 0 %1.0f 0 0 %1.0f %1.0f %1.0f 0 %1.0f 0 0 0 0</gml:posList>"
 	    "</gml:LinearRing></gml:exterior><gml:interior><gml:LinearRing>"
-	    "<gml:posList srsDimension=\"3\">5 5 0 5 %1.0f 0 %1.0f %1.0f %1.0f "
-	    "%1.0f 5 0 5 5 0</gml:posList></gml:LinearRing></gml:interior></gml:Polygon>"
+	    "<gml:posList srsDimension=\"3\">5 5 0 %1.0f 5 0 %1.0f %1.0f %1.0f "
+	    "5 %1.0f 0 5 5 0</gml:posList></gml:LinearRing></gml:interior></gml:Polygon>"
 	    "</gml:geometryMember></gml:MultiGeometry>");
     resvalue =
 	sqlite3_mprintf (frmt, 1e128, 1e128, 1e128, 1e128, 1e128, 1e128, 1e128,

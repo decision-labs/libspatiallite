@@ -25,4 +25,30 @@ EXTRA_DIST = frechetdistance1.testcase \
 	frechetdistdens6.testcase \
 	frechetdistdens7.testcase \
 	frechetdistdens8.testcase \
-	frechetdistdens9.testcase
+	frechetdistdens9.testcase \
+	geosminclr1.testcase \
+	geosminclr2.testcase \
+	geosminclr3.testcase \
+	geosminclr4.testcase \
+	geosminclr5.testcase \
+	geosminclr6.testcase \
+	geosminclr7.testcase \
+	geosminclrline1.testcase \
+	geosminclrline2.testcase \
+	geosminclrline3.testcase \
+	geosminclrline4.testcase \
+	geosminclrline5.testcase \
+	geosminclrline6.testcase \
+	geosminclrline7.testcase \
+	geosminwidth1.testcase \
+	geosminwidth2.testcase \
+	geosminwidth3.testcase \
+	geosminwidth4.testcase \
+	geosminwidth5.testcase \
+	geosminwidth6.testcase \
+	geosminrotrect1.testcase \
+	geosminrotrect2.testcase \
+	geosminrotrect3.testcase \
+	geosminrotrect4.testcase \
+	geosminrotrect5.testcase \
+	geosminrotrect6.testcase

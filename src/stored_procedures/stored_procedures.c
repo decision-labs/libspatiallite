@@ -2,7 +2,7 @@
 
  stored_procedures.c -- SpatiaLite Stored Procedures support
 
- version 5.0, 2020 August 1
+ version 5.1.0, 2023 August 4
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2017-2021
+Portions created by the Initial Developer are Copyright (C) 2017-2023
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -1329,7 +1329,6 @@ gaia_stored_proc_store (sqlite3 * handle, const void *cache, const char *name,
     sqlite3_stmt *stmt;
     int ret;
     stored_proc_reset_error (cache);
-
     sql =
 	"INSERT INTO stored_procedures(name, title, sql_proc) VALUES (?, ?, ?)";
     ret = sqlite3_prepare_v2 (handle, sql, strlen (sql), &stmt, NULL);

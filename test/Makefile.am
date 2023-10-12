@@ -115,9 +115,9 @@ endif
 AM_CFLAGS = -I@srcdir@/../src/headers -I@srcdir@
 
 if MINGW
-AM_LDFLAGS = -L../src -lspatialite -lm -lxml2 $(GCOV_FLAGS)
+AM_LDFLAGS = -L../src -lspatialite -lsqlite3 -lm -lxml2 $(GCOV_FLAGS)
 else 
-AM_LDFLAGS = -L../src -lpthread -lspatialite -lm -lxml2 $(GCOV_FLAGS)
+AM_LDFLAGS = -L../src -lpthread -lspatialite -lsqlite3 -lm -lxml2 $(GCOV_FLAGS)
 endif
 
 TESTS = $(check_PROGRAMS)
@@ -222,15 +222,17 @@ EXTRA_DIST = fnmatch_impl4win.h \
 SUBDIRS = sql_stmt_geosadvanced_tests sql_stmt_geos_tests \
 	sql_stmt_geos_380 sql_stmt_geos_non380 \
 	sql_stmt_geos_390 sql_stmt_geos_non390 sql_stmt_geos_391 \
-	sql_stmt_geos370_tests sql_stmt_geos3100_tests \
-	sql_stmt_geos_3100 sql_stmt_geos_non3100 \
-	sql_stmt_geos3110_tests \
+	sql_stmt_geos370_tests sql_stmt_geos390_tests \
+	sql_stmt_geos3100_tests sql_stmt_geos_3100 \
+	sql_stmt_geos_non3100 sql_stmt_geos3110_tests \
 	sql_stmt_geos_3110 sql_stmt_geos_non3110 \
+	sql_stmt_geos_3120 sql_stmt_geos_non3120 \
 	sql_stmt_libxml2_tests sql_stmt_rtgeom_tests \
 	sql_stmt_libxml2_rttopo_tests sql_stmt_proc_tests \
 	sql_stmt_mathsql_tests sql_stmt_proj_tests \
 	sql_stmt_proj492_tests sql_stmt_proj493_tests \
 	sql_stmt_proj600security_tests sql_stmt_proj720_tests \
+	sql_stmt_proj910_tests \
 	sql_stmt_zip_proj6 sql_stmt_minizip \
 	sql_stmt_proj600_tests sql_stmt_security_tests \
 	sql_stmt_tests sql_stmt_xmlsec_tests \

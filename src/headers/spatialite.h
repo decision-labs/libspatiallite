@@ -1,7 +1,7 @@
 /* 
  spatialite.h -- Gaia spatial support for SQLite 
   
- version 5.0, 2020 August 1
+ version 5.1.0, 2023 August 4
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2021
+Portions created by the Initial Developer are Copyright (C) 2008-2023
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -1240,7 +1240,7 @@ extern "C"
   and latitudes (as required by RFC 7946); FALSE if they are in some
   other (undefined) CRS
  \param m_coords TRUE if M-values will be exported as ordinary coordinates;
- FALSE for strict RFC 4796 conformance (no M-Values at all)
+ FALSE for strict RFC 7946 conformance (no M-Values at all)
  \param indent TRUE if the GeoJSON file will be properly indented for enhanced
  human readibility; FALSE if the GeoJSON file will be in a single monolithic
  line without blank spaces.
@@ -1956,6 +1956,8 @@ extern "C"
  a SQL Transaction.
  \param ram_tmp_store boolean: if set to TRUE all TEMPORARY tables
  and indices will be created in RAM, otherwise in a file.
+ \param default_null_blade boolean: is set to TRUE in the case of
+ an empty blade_table a default NULL Blade will be assumed.
  \param message pointer to a string buffer; if not NULL it will point
  on completion an eventual error message.
  
@@ -1973,7 +1975,7 @@ extern "C"
 				       const char *blade_geom,
 				       const char *output_table,
 				       int transaction, int ram_tmp_store,
-				       char **message);
+				       int default_null_blade, char **message);
 
 /**
   Will attempt to create the Routing Nodes columns for a spatial table

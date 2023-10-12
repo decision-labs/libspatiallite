@@ -1,7 +1,7 @@
 /*
  gg_formats.h -- Gaia common support for geometries: formats
   
- version 5.0, 2020 August 1
+ version 5.1.0, 2023 August 4
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2021
+Portions created by the Initial Developer are Copyright (C) 2008-2023
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -879,7 +879,6 @@ extern "C"
  \param result on completion will containt a pointer to the FGF buffer [BLOB]:
  NULL on failure.
  \param size on completion this variable will contain the BLOB's size (in bytes)
- \param coord_dims one of: GAIA_XY, GAIA_XY_Z, GAIA_XY_M, GAIA_XY_ZM
 
  \sa gaiaFromFgf
 
@@ -888,8 +887,7 @@ extern "C"
  of memory cleanup via buffer binding].
  */
     GAIAGEO_DECLARE void gaiaToFgf (gaiaGeomCollPtr geom,
-				    unsigned char **result, int *size,
-				    int coord_dims);
+				    unsigned char **result, int *size);
 
 /**
  Creates a Geometry object from WKT notation
@@ -1167,13 +1165,30 @@ extern "C"
 
  \param out_buf pointer to dynamically growing Text buffer
  \param version GML version
+ \params flippd if TURE the X and Y axes order will be: Y first, X second
  \param precision decimal digits to be used for coordinates
  \param geom pointer to Geometry object
 
- \sa gaiaParseGml
+ \sa gaiaParseGml. gaiaOutGml
 
  \note if \e version is set to \b 3, then GMLv3 will be used;
  in any other case GMLv2 will be assumed by default.
+ */
+    GAIAGEO_DECLARE void gaiaOutGml_ex (gaiaOutBufferPtr out_buf, int version,
+					int flipped, int precision,
+					gaiaGeomCollPtr geom);
+
+/**
+ Encodes a Geometry object into GML notation
+
+ \param out_buf pointer to dynamically growing Text buffer
+ \param version GML version
+ \param precision decimal digits to be used for coordinates
+ \param geom pointer to Geometry object
+
+ \sa gaiaParseGml, gaiaOutGml_ex
+
+ \note it's simply an alias for gaiaOutGml_ex with FLIPPED set to FALSE.
  */
     GAIAGEO_DECLARE void gaiaOutGml (gaiaOutBufferPtr out_buf, int version,
 				     int precision, gaiaGeomCollPtr geom);
