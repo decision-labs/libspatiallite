@@ -4337,6 +4337,41 @@ gaiaToCompressedBlobWkb (gaiaGeomCollPtr geom, unsigned char **result,
       };
 }
 
+static int
+count_elementaries (gaiaGeomCollPtr geo)
+{
+/* counint how many elementary items are there */
+    gaiaPointPtr pt;
+    gaiaLinestringPtr ln;
+    gaiaPolygonPtr pg;
+    int pts = 0;
+    int lns = 0;
+    int pgs = 0;
+
+    pt = geo->FirstPoint;
+    while (pt != NULL)
+      {
+	  /* counting Points */
+	  pts++;
+	  pt = pt->Next;
+      }
+    ln = geo->FirstLinestring;
+    while (ln != NULL)
+      {
+	  /* counting Linestring */
+	  lns++;
+	  ln = ln->Next;
+      }
+    pg = geo->FirstPolygon;
+    while (pg != NULL)
+      {
+	  /* counting Polygons */
+	  pgs++;
+	  pg = pg->Next;
+      }
+    return pts + lns + pgs;
+}
+
 GAIAGEO_DECLARE gaiaGeomCollPtr
 gaiaFromWkb (const unsigned char *blob, unsigned int size)
 {
@@ -4497,6 +4532,14 @@ gaiaFromWkb (const unsigned char *blob, unsigned int size)
       case GAIA_GEOMETRYCOLLECTIONZM:
 	  geo->DeclaredType = GAIA_GEOMETRYCOLLECTION;
 	  break;
+      }
+
+/* sandro 2024-02-24: final sanity check */
+    if (count_elementaries (geo) == 0)
+      {
+	  /* this is an illegal empty Geometry !!! */
+	  gaiaFreeGeomColl (geo);
+	  return NULL;
       }
     return geo;
 }

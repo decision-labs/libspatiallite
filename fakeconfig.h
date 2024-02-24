@@ -17,10 +17,10 @@
 #define ENABLE_RTTOPO 1
 
 /* Should be defined in order to enable GEOS_3100 support. */
-/* #undef GEOS_3100 */
+#define GEOS_3100 1
 
 /* Should be defined in order to enable GEOS_3110 support. */
-/* #undef GEOS_3110 */
+#define GEOS_3110 1
 
 /* Should be defined in order to enable GEOS_370 support. */
 #define GEOS_370 1
@@ -221,12 +221,14 @@
 #define PROJ_NEW 1
 
 /* Should contain a text-string describing the intended target CPU */
-#define SPATIALITE_TARGET_CPU "x86_64-redhat-linux"
+#define SPATIALITE_TARGET_CPU "x86_64-linux-gnu"
 
 /* the Version of this package. */
 #define SPATIALITE_VERSION "5.1.1-rc0"
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #define STDC_HEADERS 1
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
