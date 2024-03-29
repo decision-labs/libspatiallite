@@ -42,10 +42,7 @@ EXTRA_DIST = 3ddistance10.testcase \
 	asencodedpolyline13.testcase \
 	asencodedpolyline14.testcase \
 	circularity10.testcase \
-	circularity11.testcase \
 	circularity12.testcase \
-	circularity13.testcase \
-	circularity14.testcase \
 	circularity15.testcase \
 	circularity16.testcase \
 	circularity17.testcase \
@@ -132,10 +129,7 @@ EXTRA_DIST = 3ddistance10.testcase \
 	st_asx3d8.testcase \
 	st_asx3d9.testcase \
 	st_area10.testcase \
-	st_area11.testcase \
-	st_area12.testcase \
-	st_area13.testcase \
-	st_area14.testcase \
+	st_area12.testcase
 	st_area15.testcase \
 	st_area16.testcase \
 	st_area17.testcase \

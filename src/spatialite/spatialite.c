@@ -123,8 +123,10 @@ Regione Toscana - Settore Sistema Informativo Territoriale ed Ambientale
 #ifndef OMIT_PROJ		/* including PROJ.4 */
 #ifdef PROJ_NEW			/* supporting new PROJ.6 */
 #include <proj.h>
+#define PROJ_GEODESIC 1
 #else /* supporting old PROJ.4 */
 #include <proj_api.h>
+#define PROJ_GEODESIC 0
 #endif
 #endif
 
@@ -21412,7 +21414,7 @@ fnct_ToGARS (sqlite3_context * context, int argc, sqlite3_value ** argv)
     gaiaLinestringPtr line;
     gaiaPolygonPtr polyg;
     gaiaGeomCollPtr geo = NULL;
-    char p_result[8];
+    char p_result[32];
     int lon_band = 0;
     double lon_minutes = 0;
     int segmentNumber = 0;
@@ -26243,7 +26245,7 @@ fnct_Area (sqlite3_context * context, int argc, sqlite3_value ** argv)
 	sqlite3_result_null (context);
     else
       {
-	  if (use_ellipsoid >= 0)
+	  if (use_ellipsoid == 0)
 	    {
 #ifdef ENABLE_RTTOPO		/* only if RTTOPO is enabled */
 		/* attempting to identify the corresponding ellipsoid */
@@ -26256,6 +26258,17 @@ fnct_Area (sqlite3_context * context, int argc, sqlite3_value ** argv)
 #else
 		ret = 0;
 #endif /* end RTTOPO conditional */
+	    }
+	  else if (use_ellipsoid > 0)
+	    {
+#ifdef PROJ_GEODESIC		/* only if PROJ_GEODESIC is enabled */
+		if (getEllipsoidParams (sqlite, geo->Srid, &a, &b, &rf))
+		    ret = gaiaGeodesicAreaProj (geo, a, rf, &area);
+		else
+		    ret = 0;
+#else
+		ret = 0;
+#endif /* end PROJ_GEODESIC conditional */
 	    }
 	  else
 	    {
@@ -26362,23 +26375,6 @@ fnct_Circularity (sqlite3_context * context, int argc, sqlite3_value ** argv)
     else
       {
 	  void *data = sqlite3_user_data (context);
-	  if (use_ellipsoid >= 0)
-	    {
-#ifdef ENABLE_RTTOPO		/* only if RTTOPO is enabled */
-		/* attempting to identify the corresponding ellipsoid */
-		if (getEllipsoidParams (sqlite, geo->Srid, &a, &b, &rf))
-		    ret = 1;
-		else
-		    ret = 0;
-#else
-		ret = 0;
-#endif /* end RTTOPO conditional */
-		if (!ret)
-		  {
-		      sqlite3_result_null (context);
-		      goto end;
-		  }
-	    }
 	  ln = geo->FirstLinestring;
 	  while (ln != NULL)
 	    {
@@ -26392,16 +26388,27 @@ fnct_Circularity (sqlite3_context * context, int argc, sqlite3_value ** argv)
 		/* looping on individual polygons */
 		gaiaGeomCollPtr geo2 =
 		    circularity_polygon (geo->Srid, geo->DimensionModel, pg);
-		if (use_ellipsoid >= 0)
+		if (use_ellipsoid == 0)
 		  {
 #ifdef ENABLE_RTTOPO		/* only if RTTOPO is enabled */
-		      /* attempting to identify the corresponding ellipsoid */
-		      ret =
-			  gaiaGeodesicArea (cache, geo2, a, b, use_ellipsoid,
-					    &area);
+		      if (getEllipsoidParams (sqlite, geo->Srid, &a, &b, &rf))
+			  ret =
+			      gaiaGeodesicArea (cache, geo2, a, b,
+						use_ellipsoid, &area);
 #else
 		      ret = 0;
 #endif /* end RTTOPO conditional */
+		  }
+		else if (use_ellipsoid > 0)
+		  {
+#ifdef PROJ_GEODESIC		/* only if PROJ_GEODESIC is enabled */
+		      if (getEllipsoidParams (sqlite, geo->Srid, &a, &b, &rf))
+			  ret = gaiaGeodesicAreaProj (geo2, a, rf, &area);
+		      else
+			  ret = 0;
+#else
+		      ret = 0;
+#endif /* end PROJ_GEODESIC conditional */
 		  }
 		else
 		  {
@@ -26424,7 +26431,7 @@ fnct_Circularity (sqlite3_context * context, int argc, sqlite3_value ** argv)
 
 		if (use_ellipsoid >= 0)
 		  {
-#ifdef ENABLE_RTTOPO		/* only if RTTOPO is enabled */
+#ifdef PROJ_GEODESIC		/* only if PROJ_GEODESIC is enabled */
 		      perimeter = gaiaGeodesicTotalLength (a, b, rf,
 							   pg->Exterior->
 							   DimensionModel,
@@ -26437,7 +26444,7 @@ fnct_Circularity (sqlite3_context * context, int argc, sqlite3_value ** argv)
 			  ret = 1;
 #else
 		      ret = 0;
-#endif /* end RTTOPO conditional */
+#endif /* end PROJ_GEODESIC conditional */
 		  }
 		else
 		  {
@@ -26475,7 +26482,6 @@ fnct_Circularity (sqlite3_context * context, int argc, sqlite3_value ** argv)
 		sqlite3_result_double (context, index);
 	    }
       }
-  end:
     gaiaFreeGeomColl (geo);
 }
 

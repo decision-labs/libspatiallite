@@ -1,5 +1,8 @@
 
-EXTRA_DIST = projasstring1.testcase \
+EXTRA_DIST = circularity11.testcase \
+	circularity13.testcase \
+	circularity14.testcase \
+	projasstring1.testcase \
 	projasstring2.testcase \
 	projasstring3.testcase \
 	projasstring4.testcase \
@@ -41,6 +44,9 @@ EXTRA_DIST = projasstring1.testcase \
 	sridax2orient6.testcase \
 	sriddatum6.testcase \
 	sridprojection6.testcase \
+	st_area11.testcase \
+	st_area13.testcase \
+	st_area14.testcase \
 	transform10.testcase \
 	transform11.testcase \
 	transform12.testcase \

@@ -2066,21 +2066,26 @@ algorithm with given <i>tolerance</i> and respecting topology</td></tr>
 				<td align="center" bgcolor="#d0f0d0">X</td>
 				<td align="center" bgcolor="#f0d0d0">GEOS</td>
 				<td>return the centroid of s, which may lie outside s</td></tr>
-			<tr><td rowspan="2"><b>Area</b></td>
+			<tr><td rowspan="3"><b>Area</b></td>
 				<td>Area( s <i>Surface</i> ) : <i>Double precision</i><hr>
 					ST_Area( s <i>Surface</i> ) : <i>Double precision</i></td>
 				<td align="center" bgcolor="#d0f0d0">X</td>
 				<td align="center" bgcolor="#f0d0d0">GEOS</td>
 				<td>return the area of s</td></tr>
-			<tr><td>Area( s <i>Surface</i> , use_ellipsoid <i>Boolean</i> ) : <i>Double precision</i><hr>
+			<tr><td rowspan="2">Area( s <i>Surface</i> , use_ellipsoid <i>Boolean</i> ) : <i>Double precision</i><hr>
 					ST_Area( s <i>Surface</i> , use_ellipsoid <i>Boolean</i> ) : <i>Double precision</i>
 				</td>
-				<td align="center" bgcolor="#d0f0d0">X</td>
-				<td align="center" bgcolor="#f0d0f0">RTTOPO</td>
-				<td>return the area of s (measured in meters).<br>
-If the <b>use_ellipsoid</b> argument is set to <b>TRUE</b> the precise (but slower) area will be computed on the Ellipsoid, otherwise will be computed on the Sphere (approximative, but faster).<hr>
+				<td></td>
+				<td align="center" bgcolor="#d0d0f0">PROJ</td>
+				<td rowspan="2">return the area of s (measured in meters).<br>
+If the <b>use_ellipsoid</b> argument is set to <b>TRUE</b> the precise (but slower) area will be computed on the Ellipsoid; this method requires <b>PROJ</b> support.<br>
+Otherwise will be computed on the Sphere (approximative, but faster); this method requires <b>RTTOPO</b> support.<hr>
 This function only supports Long/Lat coordinates, and will return NULL for any planar CRS</td></tr>
-			<tr><td rowspan="2"><b><a name="circularity">Circularity</a></b></td>
+			<tr>
+				<td></td>
+				<td align="center" bgcolor="#f0d0f0">RTTOPO</td>
+			</tr>
+			<tr><td rowspan="3"><b><a name="circularity">Circularity</a></b></td>
 				<td>Circularity( s <i>Surface</i> ) : <i>Double precision</i></td>
 				<td align="center" bgcolor="#d0f0d0">X</td>
 				<td align="center" bgcolor="#f0d0d0">GEOS</td>
@@ -2099,12 +2104,17 @@ This function only supports Long/Lat coordinates, and will return NULL for any p
 						<li>if the given Geometry only contains one or more <i>Points</i> the index will always assume a <b>NULL</b> value.</li>
 				    </ul>
 				    </td></tr>
-			<tr><td>Circularity( s <i>Surface</i> , use_ellipsoid <i>Boolean</i> ) : <i>Double precision</i></td>
-				<td align="center" bgcolor="#d0f0d0">X</td>
-				<td align="center" bgcolor="#f0d0f0">RTTOPO</td>
-				<td>same as the above Function, but in this case areas and perimeters will be measured in meters.<br>
-If the <b>use_ellipsoid</b> argument is set to <b>TRUE</b> the precise (but slower) values will be computed on the Ellipsoid, otherwise they'll be computed on the Sphere (approximative, but faster).<hr>
+			<tr><td rowspan="2">Circularity( s <i>Surface</i> , use_ellipsoid <i>Boolean</i> ) : <i>Double precision</i></td>
+				<td></td>
+				<td align="center" bgcolor="#d0d0f0">PROJ</td>
+				<td rowspan="2">same as the above Function, but in this case areas and perimeters will be measured in meters.<br>
+If the <b>use_ellipsoid</b> argument is set to <b>TRUE</b> the precise (but slower) values will be computed on the Ellipsoid; this method requires <b>PROJ</b> support.<br>
+Otherwise they'll be computed on the Sphere (approximative, but faster); this method requires <b>RTTOPO</b> support.<hr>
 This function only supports Long/Lat coordinates, and will return NULL for any planar CRS</td></tr>
+			<tr>
+				<td></td>
+				<td align="center" bgcolor="#f0d0f0">RTTOPO</td>
+			</tr>
 			<tr><td colspan="5" align="center" bgcolor="#f0f0c0">
 				<h3><a name="p9">SQL functions on type Polygon</a></h3></td></tr>
 			<tr><th bgcolor="#d0d0d0">Function</th>

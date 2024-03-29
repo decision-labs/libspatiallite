@@ -1356,7 +1356,7 @@ extern "C"
  \return 0 on failure: any other value on success
 
  \sa gaiaGeoCollArea_r,
- gaiaGeomCollLength, gaiaMeasureArea, gaiaGeodesicArea
+ gaiaGeomCollLength, gaiaMeasureArea, gaiaGeodesicArea, gaiaGeodesicAreaProj
 
  \note not reentrant and thread unsafe.
 
@@ -1374,7 +1374,7 @@ extern "C"
  \return 0 on failure: any other value on success
 
  \sa gaiaGeoCollArea,
- gaiaGeomCollLength, gaiaMeasureArea, gaiaGeodesicArea
+ gaiaGeomCollLength, gaiaMeasureArea, gaiaGeodesicArea, gaiaGeodesicAreaProj
 
  \note reentrant and thread-safe.
 
@@ -4915,7 +4915,7 @@ extern "C"
 						    gaiaGeomCollPtr blade);
 
 /**
- Measures the total Area for a Geometry object (geodesic)
+ Measures the total Area for a Geometry object (geodesic - based on RtTopo support)
 
  \param p_cache a memory pointer returned by spatialite_alloc_connection()
  \param geom pointer to Geometry object
@@ -4927,7 +4927,7 @@ extern "C"
 
  \return 0 on failure: any other value on success
 
- \sa gaiaGeomCollLength, gaiaMeasureArea, gaiaGeomCollArea
+ \sa gaiaGeomCollLength, gaiaMeasureArea, gaiaGeomCollArea, gaiaGeodesicAreaProj
 
  \remark \b RTTOPO support required.
  */
@@ -4935,6 +4935,23 @@ extern "C"
 					  gaiaGeomCollPtr geom, double a,
 					  double b, int use_ellipsoid,
 					  double *area);
+
+/**
+ Measures the total Area for a Geometry object (geodesic - based on PROJ support)
+
+ \param geom pointer to Geometry object
+ \param a major axis of the reference spheroid.
+ \param rf reverse flattening of the spheroid.
+ \param area on completion this variable will contain the measured area
+
+ \return 0 on failure: any other value on success
+
+ \sa gaiaGeomCollLength, gaiaMeasureArea, gaiaGeomCollArea, gaiaGeodesicArea
+
+ \remark \b RTTOPO support required.
+ */
+    GAIAGEO_DECLARE int gaiaGeodesicAreaProj (gaiaGeomCollPtr geom, double a,
+					      double rf, double *area);
 
 /**
  Utility function: re-noding lines

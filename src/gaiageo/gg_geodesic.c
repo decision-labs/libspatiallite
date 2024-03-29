@@ -403,6 +403,113 @@ gaiaGeodesicTotalLength (double a, double b, double rf, int dims,
     return len;
 }
 
+GAIAGEO_DECLARE int
+gaiaGeodesicAreaProj (gaiaGeomCollPtr geom, double a, double rf, double *xarea)
+{
+/* computing the Geodesic total Area for some (Multi)Polygon */
+#if PROJ_GEODESIC
+/*
+/ using the PROJ own implementation
+/
+*/
+    gaiaPolygonPtr pg;
+    gaiaRingPtr ring;
+    int iv;
+    int ib;
+    double x;
+    double y;
+    double z;
+    double m;
+    double area;
+    double tot_area = 0.0;
+    double *lat_array;
+    double *lon_array;
+    struct geod_geodesic g;
+    if (rf == a)
+	a = rf;			/* silencing stupid compiler warnings */
+    geod_init (&g, a, 1.0 / rf);
+
+    pg = geom->FirstPolygon;
+    while (pg != NULL)
+      {
+	  /* progessing one POLYGONs */
+	  ring = pg->Exterior;
+	  lat_array = malloc (sizeof (double) * ring->Points);
+	  lon_array = malloc (sizeof (double) * ring->Points);
+	  for (iv = 0; iv < ring->Points; iv++)
+	    {
+		/* populating the Lat/Lon arrays - EXTERIOR Ring */
+		z = 0.0;
+		m = 0.0;
+		if (ring->DimensionModel == GAIA_XY_Z)
+		  {
+		      gaiaGetPointXYZ (ring->Coords, iv, &x, &y, &z);
+		  }
+		else if (ring->DimensionModel == GAIA_XY_M)
+		  {
+		      gaiaGetPointXYM (ring->Coords, iv, &x, &y, &m);
+		  }
+		else if (ring->DimensionModel == GAIA_XY_Z_M)
+		  {
+		      gaiaGetPointXYZM (ring->Coords, iv, &x, &y, &z, &m);
+		  }
+		else
+		  {
+		      gaiaGetPoint (ring->Coords, iv, &x, &y);
+		  }
+		lon_array[iv] = x;
+		lat_array[iv] = y;
+	    }
+	  geod_polygonarea (&g, lat_array, lon_array, ring->Points, &area,
+			    NULL);
+	  tot_area += fabs (area);
+	  free (lat_array);
+	  free (lon_array);
+	  for (ib = 0; ib < pg->NumInteriors; ib++)
+	    {
+		/* populating the Lat/Lon arrays - INTERIOR Rings */
+		ring = pg->Interiors + ib;
+		lat_array = malloc (sizeof (double) * ring->Points);
+		lon_array = malloc (sizeof (double) * ring->Points);
+		for (iv = 0; iv < ring->Points; iv++)
+		  {
+		      /* populating the Lat/Lon arrays - EXTERIOR Ring */
+		      z = 0.0;
+		      m = 0.0;
+		      if (ring->DimensionModel == GAIA_XY_Z)
+			{
+			    gaiaGetPointXYZ (ring->Coords, iv, &x, &y, &z);
+			}
+		      else if (ring->DimensionModel == GAIA_XY_M)
+			{
+			    gaiaGetPointXYM (ring->Coords, iv, &x, &y, &m);
+			}
+		      else if (ring->DimensionModel == GAIA_XY_Z_M)
+			{
+			    gaiaGetPointXYZM (ring->Coords, iv, &x, &y, &z, &m);
+			}
+		      else
+			{
+			    gaiaGetPoint (ring->Coords, iv, &x, &y);
+			}
+		      lon_array[iv] = x;
+		      lat_array[iv] = y;
+		  }
+		geod_polygonarea (&g, lat_array, lon_array, ring->Points, &area,
+				  NULL);
+		tot_area += fabs (area);
+		free (lat_array);
+		free (lon_array);
+	    }
+	  pg = pg->Next;
+      }
+    *xarea = tot_area;
+    return 1;
+#else
+    return 0;
+#endif /* end PROJ_GEODESIC conditional */
+}
+
 static int
 auxGeodesicArcLength (double a, double rf, double lat1, double lon1,
 		      double lat2, double lon2, double *parc_length_degrees,
