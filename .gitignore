@@ -90,6 +90,12 @@ src/headers/spatialite/gaiaconfig-msvc.h
 *.log
 *.trs
 test-suite.log
+test/sql_logfile
+test/sql_*_logfile
+test/**/*.sqlite
+
+# Example binaries
+examples/demo*
 
 # Coverage
 *.gcno
