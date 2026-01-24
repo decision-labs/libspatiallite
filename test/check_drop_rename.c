@@ -630,6 +630,9 @@ do_create_test_db (sqlite3 ** xhandle, void **xcache)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     void *cache = spatialite_alloc_connection ();
     ret =
 	sqlite3_open_v2 (":memory:", &handle,
@@ -664,8 +667,8 @@ do_create_test_db (sqlite3 ** xhandle, void **xcache)
 
 /* DB initialization */
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -674,6 +677,35 @@ do_create_test_db (sqlite3 ** xhandle, void **xcache)
 	  spatialite_cleanup_ex (cache);
 	  return -3;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  spatialite_cleanup_ex (cache);
+	  return -3;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  spatialite_cleanup_ex (cache);
+	  return -3;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 and metadata is incomplete.
+     * Skip this test since it requires full metadata. Return positive value to signal skip. */
+    sqlite3_free_table (results);
+    sqlite3_close (handle);
+    spatialite_cleanup_ex (cache);
+    return 100;
+#endif
+    sqlite3_free_table (results);
 
 /* creating an ordinary table */
     ret =
@@ -755,6 +787,12 @@ main (int argc, char *argv[])
 
 /* testing RenameTable */
     ret = do_create_test_db (&handle, &cache);
+    if (ret == 100)
+      {
+	  /* RTTOPO disabled - skip test */
+	  retcode = 0;
+	  goto end;
+      }
     if (ret < 0)
       {
 	  retcode = ret;

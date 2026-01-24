@@ -165,7 +165,7 @@ open_connection (struct db_conn *conn)
 	  fprintf (stderr, "PRAGMA trusted_schema=0 error: %s\n", err_msg);
 	  sqlite3_free (err_msg);
 	  sqlite3_close (db_handle);
-	  return -1;
+	  return;
       }
     ret = sqlite3_exec (db_handle, "PRAGMA foreign_keys=1", NULL, NULL, &err_msg);
     if (ret != SQLITE_OK)
@@ -173,7 +173,7 @@ open_connection (struct db_conn *conn)
 	  fprintf (stderr, "PRAGMA foreign_keys=1 error: %s\n", err_msg);
 	  sqlite3_free (err_msg);
 	  sqlite3_close (db_handle);
-	  return -1;
+	  return;
       }
 
     spatialite_init_ex (db_handle, conn->cache, 0);

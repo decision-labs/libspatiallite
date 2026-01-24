@@ -90,6 +90,9 @@ create_origin ()
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     const char *sql;
     void *cache = spatialite_alloc_connection ();
 
@@ -124,8 +127,8 @@ create_origin ()
     spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -133,6 +136,33 @@ create_origin ()
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 and metadata is incomplete.
+     * Skip this test since it requires full metadata. */
+    sqlite3_free_table (results);
+    sqlite3_close (handle);
+    spatialite_cleanup_ex (cache);
+    return 1;
+#endif
+    sqlite3_free_table (results);
 
 /* creating the input table #1 */
     sql = "CREATE TABLE input_1 (id INTEGER NOT NULL PRIMARY KEY,"
@@ -986,6 +1016,9 @@ test_clone_table (int base, int with_extra, int ignore, int resequence,
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     const char *sql;
     int retcode = 0;
     void *cache = spatialite_alloc_connection ();
@@ -1022,8 +1055,8 @@ test_clone_table (int base, int with_extra, int ignore, int resequence,
     spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -1032,6 +1065,39 @@ test_clone_table (int base, int with_extra, int ignore, int resequence,
 	  retcode = -2;
 	  goto end;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  retcode = -2;
+	  goto end;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  retcode = -2;
+	  goto end;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  retcode = -2;
+	  goto end;
+      }
+#endif
+    sqlite3_free_table (results);
 
 /* attaching the origin DB */
     sql = "ATTACH DATABASE \"./clone_origin.sqlite\" AS \"input\"";
@@ -1429,9 +1495,16 @@ main (int argc, char *argv[])
 #ifndef OMIT_GEOS		/* only if GEOS is enabled */
     int ret;
 
-    if (create_origin () < 0)
+    ret = create_origin ();
+    if (ret < 0)
       {
 	  retcode = -66;
+	  goto end;
+      }
+    if (ret == 1)
+      {
+	  /* RTTOPO disabled - skip test */
+	  retcode = 0;
 	  goto end;
       }
 

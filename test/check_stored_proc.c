@@ -2108,6 +2108,9 @@ main (int argc, char *argv[])
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     void *cache = spatialite_alloc_connection ();
     char *old_SPATIALITE_SECURITY_ENV = NULL;
 #ifdef _WIN32
@@ -2155,8 +2158,8 @@ main (int argc, char *argv[])
     spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -2164,6 +2167,34 @@ main (int argc, char *argv[])
 	  sqlite3_close (handle);
 	  return -3;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 and metadata is incomplete.
+     * Skip this test since it requires full metadata. */
+    sqlite3_free_table (results);
+    sqlite3_close (handle);
+    spatialite_cleanup_ex (cache);
+    spatialite_shutdown ();
+    return 0;
+#endif
+    sqlite3_free_table (results);
 
 #ifndef OMIT_ICONV		/* only if ICONV is enabled */
 

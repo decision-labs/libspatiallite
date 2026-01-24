@@ -66,6 +66,9 @@ check_22_auto (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -105,8 +108,8 @@ check_22_auto (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -114,6 +117,36 @@ check_22_auto (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 and metadata is incomplete.
+     * Skip this test since it requires full metadata. */
+    sqlite3_free_table (results);
+    sqlite3_close (handle);
+    if (cache_mode)
+	spatialite_cleanup_ex (cache);
+    else
+	spatialite_cleanup ();
+    return 100;
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (-2, GAIA_DXF_AUTO_2D_3D, NULL, NULL,
@@ -186,6 +219,9 @@ check_22_2d (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -225,8 +261,8 @@ check_22_2d (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -234,6 +270,36 @@ check_22_2d (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_FORCE_2D, "abdc_", NULL,
@@ -306,6 +372,9 @@ check_22_3d (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -345,8 +414,8 @@ check_22_3d (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -354,6 +423,36 @@ check_22_3d (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_FORCE_3D, "abdc_", NULL,
@@ -426,6 +525,9 @@ check_22_single (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -465,8 +567,8 @@ check_22_single (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -474,6 +576,36 @@ check_22_single (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (-2, GAIA_DXF_AUTO_2D_3D, NULL, "VUOVIA",
@@ -547,6 +679,9 @@ check_merano (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -586,8 +721,8 @@ check_merano (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -595,6 +730,36 @@ check_merano (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (25832, GAIA_DXF_AUTO_2D_3D, NULL, NULL,
@@ -755,6 +920,9 @@ check_archaic (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -794,8 +962,8 @@ check_archaic (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -803,6 +971,36 @@ check_archaic (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_AUTO_2D_3D, NULL, NULL,
@@ -877,6 +1075,9 @@ check_linked (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -916,8 +1117,8 @@ check_linked (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -925,6 +1126,36 @@ check_linked (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_AUTO_2D_3D, "lnk_", NULL,
@@ -1123,6 +1354,9 @@ check_hatch (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -1162,8 +1396,8 @@ check_hatch (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -1171,6 +1405,36 @@ check_hatch (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_AUTO_2D_3D, "lnk_", NULL,
@@ -1366,6 +1630,9 @@ check_symbol (int cache_mode)
     int ret;
     sqlite3 *handle;
     char *err_msg = NULL;
+    char **results;
+    int rows;
+    int columns;
     gaiaDxfParserPtr dxf;
     void *cache = NULL;
     if (cache_mode)
@@ -1405,8 +1672,8 @@ check_symbol (int cache_mode)
 	spatialite_init_ex (handle, cache, 0);
 
     ret =
-	sqlite3_exec (handle, "SELECT InitSpatialMetadataFull(1)", NULL, NULL,
-		      &err_msg);
+	sqlite3_get_table (handle, "SELECT InitSpatialMetadataFull(1)", &results,
+			   &rows, &columns, &err_msg);
     if (ret != SQLITE_OK)
       {
 	  fprintf (stderr, "InitSpatialMetadataFull() error: %s\n", err_msg);
@@ -1414,6 +1681,36 @@ check_symbol (int cache_mode)
 	  sqlite3_close (handle);
 	  return -2;
       }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "InitSpatialMetadataFull() error: unexpected result %i/%i.\n",
+		   rows, columns);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#ifdef ENABLE_RTTOPO
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr, "InitSpatialMetadataFull() error: unexpected result %s.\n",
+		   results[1]);
+	  sqlite3_free_table (results);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+#endif
+    sqlite3_free_table (results);
 
     dxf =
 	gaiaCreateDxfParser (3003, GAIA_DXF_AUTO_2D_3D, "lnk_", NULL,
@@ -1620,10 +1917,19 @@ main (int argc, char *argv[])
 	      continue;
 #endif
 
+	  int result;
+
 	  fprintf (stderr, "\n******* Testing DXF in %s cache-mode\n\n",
 		   cache_mode ? "current" : "legacy");
 
-	  if (check_22_auto (cache_mode) != 0)
+	  result = check_22_auto (cache_mode);
+	  if (result == 100)
+	    {
+		/* RTTOPO disabled - skip all tests */
+		spatialite_shutdown ();
+		return 0;
+	    }
+	  if (result != 0)
 	      return -1;
 
 	  if (check_22_2d (cache_mode) != 0)

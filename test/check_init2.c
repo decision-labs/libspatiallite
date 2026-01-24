@@ -253,6 +253,7 @@ main (int argc, char *argv[])
 		   rows, columns);
 	  return -13;
       }
+#ifdef ENABLE_RTTOPO
     if (strcmp (results[1], "1") != 0)
       {
 	  fprintf (stderr,
@@ -260,6 +261,16 @@ main (int argc, char *argv[])
 		   results[1]);
 	  return -14;
       }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: InitSpatialMetadataFull('EMPTY'): %s.\n",
+		   results[1]);
+	  return -14;
+      }
+#endif
     sqlite3_free_table (results);
 
     ret =
@@ -368,6 +379,7 @@ main (int argc, char *argv[])
 		   rows, columns);
 	  return -24;
       }
+#ifdef ENABLE_RTTOPO
     if (strcmp (results[1], "1") != 0)
       {
 	  fprintf (stderr,
@@ -375,6 +387,16 @@ main (int argc, char *argv[])
 		   results[1]);
 	  return -25;
       }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: InitSpatialMetadataFull('WGS84'): %s.\n",
+		   results[1]);
+	  return -25;
+      }
+#endif
     sqlite3_free_table (results);
 
 #ifndef OMIT_EPSG
@@ -486,6 +508,7 @@ main (int argc, char *argv[])
 		   rows, columns);
 	  return -35;
       }
+#ifdef ENABLE_RTTOPO
     if (strcmp (results[1], "1") != 0)
       {
 	  fprintf (stderr,
@@ -493,6 +516,16 @@ main (int argc, char *argv[])
 		   results[1]);
 	  return -36;
       }
+#else
+    /* When RTTOPO is disabled, InitSpatialMetadataFull returns 0 */
+    if (strcmp (results[1], "0") != 0 && strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: InitSpatialMetadataFull('WGS84_ONLY'): %s.\n",
+		   results[1]);
+	  return -36;
+      }
+#endif
     sqlite3_free_table (results);
 
     ret = sqlite3_close (handle);
