@@ -23465,6 +23465,8 @@ fnct_AddMeasure (sqlite3_context * context, int argc, sqlite3_value ** argv)
     gaiaFreeGeomColl (geo);
 }
 
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
+
 static void
 fnct_InterpolatePoint (sqlite3_context * context, int argc,
 		       sqlite3_value ** argv)
@@ -23527,6 +23529,8 @@ fnct_InterpolatePoint (sqlite3_context * context, int argc,
     if (point != NULL)
 	gaiaFreeGeomColl (point);
 }
+
+#endif /* end GEOS */
 
 static void
 fnct_LocateBetweenMeasures (sqlite3_context * context, int argc,
@@ -52102,10 +52106,12 @@ register_spatialite_sql_functions (void *p_db, const void *p_cache)
 				SQLITE_UTF8 | SQLITE_DETERMINISTIC |
 				SQLITE_INNOCUOUS, cache, fnct_CollectionExtract,
 				0, 0, 0);
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
     sqlite3_create_function_v2 (db, "ST_InterpolatePoint", 2,
 				SQLITE_UTF8 | SQLITE_DETERMINISTIC |
 				SQLITE_INNOCUOUS, cache, fnct_InterpolatePoint,
 				0, 0, 0);
+#endif /* end GEOS */
     sqlite3_create_function_v2 (db, "ST_AddMeasure", 3,
 				SQLITE_UTF8 | SQLITE_DETERMINISTIC |
 				SQLITE_INNOCUOUS, cache, fnct_AddMeasure, 0, 0,

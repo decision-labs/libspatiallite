@@ -2307,6 +2307,7 @@ gaiaIsToxic_r (const void *cache, gaiaGeomCollPtr geom)
 	  /* checking LINESTRINGs */
 	  if (gaiaIsToxicLinestring (line))
 	    {
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
 		if (cache != NULL)
 		    gaiaSetGeosAuxErrorMsg_r
 			(cache,
@@ -2314,6 +2315,7 @@ gaiaIsToxic_r (const void *cache, gaiaGeomCollPtr geom)
 		else
 		    gaiaSetGeosAuxErrorMsg
 			("gaiaIsToxic detected a toxic Linestring: < 2 pts");
+#endif
 		return 1;
 	    }
 	  line = line->Next;
@@ -2325,12 +2327,14 @@ gaiaIsToxic_r (const void *cache, gaiaGeomCollPtr geom)
 	  ring = polyg->Exterior;
 	  if (gaiaIsToxicRing (ring))
 	    {
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
 		if (cache != NULL)
 		    gaiaSetGeosAuxErrorMsg_r
 			(cache, "gaiaIsToxic detected a toxic Ring: < 4 pts");
 		else
 		    gaiaSetGeosAuxErrorMsg
 			("gaiaIsToxic detected a toxic Ring: < 4 pts");
+#endif
 		return 1;
 	    }
 	  for (ib = 0; ib < polyg->NumInteriors; ib++)
@@ -2338,6 +2342,7 @@ gaiaIsToxic_r (const void *cache, gaiaGeomCollPtr geom)
 		ring = polyg->Interiors + ib;
 		if (gaiaIsToxicRing (ring))
 		  {
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
 		      if (cache != NULL)
 			  gaiaSetGeosAuxErrorMsg_r
 			      (cache,
@@ -2345,6 +2350,7 @@ gaiaIsToxic_r (const void *cache, gaiaGeomCollPtr geom)
 		      else
 			  gaiaSetGeosAuxErrorMsg
 			      ("gaiaIsToxic detected a toxic Ring: < 4 pts");
+#endif
 		      return 1;
 		  }
 	    }
@@ -2377,11 +2383,13 @@ gaiaIsNotClosedRing_r (const void *cache, gaiaRingPtr ring)
 	return 0;
     else
       {
+#ifndef OMIT_GEOS		/* only if GEOS is enabled */
 	  if (cache != NULL)
 	      gaiaSetGeosAuxErrorMsg_r (cache,
 					"gaia detected a not-closed Ring");
 	  else
 	      gaiaSetGeosAuxErrorMsg ("gaia detected a not-closed Ring");
+#endif
 	  return 1;
       }
 }
